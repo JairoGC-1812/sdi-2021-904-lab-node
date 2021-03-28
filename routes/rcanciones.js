@@ -12,10 +12,9 @@ module.exports = function(app, swig) {
         } ];
 
         let respuesta = swig.renderFile('views/btienda.html', {
-           vendedor : 'Tienda de canciones',
-           canciones : canciones
+            vendedor : 'Tienda de canciones',
+            canciones : canciones
         });
-
         res.send(respuesta);
     });
     app.post("/cancion", function(req, res) {
