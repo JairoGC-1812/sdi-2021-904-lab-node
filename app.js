@@ -4,10 +4,9 @@ let app = express();
 
 // Variables
 app.set('port', 8081)
-app.get('/usuarios', function(req, res) {
-    console.log("depurar aquí");
-    res.send('ver canciones');
-});
+require("./routes/rusuarios.js")(app); // (app, param1, param2, etc.)
+require("./routes/rcanciones.js")(app); // (app, param1, param2, etc.)
+
 // lanzar el servidor
 app.listen(app.get('port'), function (){
     console.log('Servidor activo');
