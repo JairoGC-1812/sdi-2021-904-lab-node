@@ -17,6 +17,9 @@ let swig = require('swig');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+let fs = require('fs');
+let https = require('https');
+
 let gestorBD = require("./modules/gestorBD.js");
 gestorBD.init(app,mongo);
 
@@ -38,6 +41,15 @@ app.use("/cancion/comprar",routerUsuarioSession);
 app.use("/compras",routerUsuarioSession);
 
 app.use(express.static('public'));
+
+app.use(function (err,req,res,next)
+{
+    console.log("Error producido: " + err); //mostramos el error en consola
+    if(!res.headersSent){
+        res.status(400);
+        res.send("Recurso no disponible");
+    }
+});
 //routerAudios
 let routerAudios = express.Router();
 routerAudios.use(function(req, res, next) {
@@ -106,6 +118,9 @@ app.get('/', function (req, res) {
 })
 
 // lanzar el servidor
-app.listen(app.get('port'), function (){
-    console.log('Servidor activo');
+https.createServer({
+    key: fs.readFileSync('certificates/alice.key'),
+    cert: fs.readFileSync('certificates/alice.crt')
+}, app).listen(app.get('port'), function() {
+    console.log("Servidor activo");
 });
