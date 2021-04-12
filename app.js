@@ -52,6 +52,28 @@ routerAudios.use(function(req, res, next) {
 });
 //Aplicar routerAudios
 app.use("/audios/",routerAudios);
+
+//routerUsuarioAutor
+let routerUsuarioAutor = express.Router();
+routerUsuarioAutor.use(function(req, res, next) {
+    console.log("routerUsuarioAutor");
+    let path = require('path');
+    let id = path.basename(req.originalUrl);
+// Cuidado porque req.params no funciona
+// en el router si los params van en la URL.
+    gestorBD.obtenerCanciones(
+        {_id: mongo.ObjectID(id) }, function (canciones) {
+            console.log(canciones[0]);
+            if(canciones[0].autor == req.session.usuario ){
+                next();
+            } else {
+                res.redirect("/tienda");
+            }
+        })
+});
+//Aplicar routerUsuarioAutor
+app.use("/cancion/modificar",routerUsuarioAutor);
+
 // Variables
 app.set('port', 8081)
 app.set('db', 'mongodb://admin:sdi@tiendamusica-shard-00-00.3iw7w.mongodb.net:27017,' +
