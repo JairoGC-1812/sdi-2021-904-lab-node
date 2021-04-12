@@ -61,14 +61,30 @@ module.exports = function(app, swig, gestorBD) {
         res.send(respuesta);
     })
     app.get('/cancion/:id', function (req, res) {
-        let criterio = { "_id" :  gestorBD.mongo.ObjectID(req.params.id)  };
+        let criterio = {"usuario": req.session.usuario};
+
+        let comproCancion;
+        gestorBD.obtenerCompras(criterio, function (compras) {
+            if (compras == null) {
+                comproCancion = false;
+            } else {
+                for (i = 0; i < compras.length; i++) {
+                    if(req.params.id == compras[i].cancionId){
+                        comproCancion = true;
+                    }
+                }
+            }
+        });
+
+        criterio = { "_id" :  gestorBD.mongo.ObjectID(req.params.id)  };
         gestorBD.obtenerCanciones(criterio,function(canciones){
             if ( canciones == null ){
                 res.send("Error al recuperar la canción.");
             } else {
                 let respuesta = swig.renderFile('views/bcancion.html',
                     {
-                        cancion : canciones[0]
+                        cancion : canciones[0],
+                        puedeReproducir: canciones[0].autor == req.session.usuario || comproCancion
                     });
                 res.send(respuesta);
             }
@@ -83,6 +99,10 @@ module.exports = function(app, swig, gestorBD) {
         let criterio = {};
         if( req.query.busqueda != null ){
             criterio = { "nombre" : {$regex : ".*"+req.query.busqueda+".*"} };
+        }
+        let pg = parseInt(req.query.pg); // Es String !!!
+        if ( req.query.pg == null){ // Puede no venir el param
+            pg = 1;
         }
         gestorBD.obtenerCancionesPg(criterio, pg , function(canciones, total ) {
             if (canciones == null) {
@@ -196,13 +216,44 @@ module.exports = function(app, swig, gestorBD) {
             usuario : req.session.usuario,
             cancionId : cancionId
         }
-        gestorBD.insertarCompra(compra ,function(idCompra){
-            if ( idCompra == null ){
-                res.send(respuesta);
+        let criterio = {"usuario": req.session.usuario};
+
+        let comproCancion;
+        gestorBD.obtenerCompras(criterio, function (compras) {
+            if (compras == null) {
+                comproCancion = false;
             } else {
-                res.redirect("/compras");
+                for (i = 0; i < compras.length; i++) {
+                    if(req.params.id == compras[i].cancionId){
+                        comproCancion = true;
+                    }
+                }
+
+        criterio = { "_id" :  cancionId  };
+        let cancion;
+        gestorBD.obtenerCanciones(criterio, function (canciones) {
+            if (canciones == null) {
+                res.send("Error al listar ");
+            } else {
+                if (compra.usuario == canciones[0].autor) {
+                    res.send("No puedes comprar tu propia canción!");
+                }else if(comproCancion){
+                    res.send("No puedes volver a comprar la misma canción!");
+                }
+                else{
+                    gestorBD.insertarCompra(compra, function (idCompra) {
+                        if (idCompra == null) {
+                            res.send(respuesta);
+                        } else {
+                            res.redirect("/compras");
+                        }
+                    });
+                }
             }
         });
+            }
+        });
+
     });
     function paso1ModificarPortada(files, id, callback){
         if (files && files.portada != null) {
