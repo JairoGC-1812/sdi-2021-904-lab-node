@@ -92,6 +92,7 @@ routerAudios.use(function(req, res, next) {
 app.use("/audios/",routerAudios);
 // routerUsuarioToken
 let routerUsuarioToken = express.Router();
+
 routerUsuarioToken.use(function(req, res, next) {
     // obtener el token, vía headers (opcionalmente GET y/o POST).
     let token = req.headers['token'] || req.body.token || req.query.token;

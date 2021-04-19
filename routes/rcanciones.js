@@ -246,7 +246,6 @@ module.exports = function(app, swig, gestorBD) {
                 }
 
         criterio = { "_id" :  cancionId  };
-        let cancion;
         gestorBD.obtenerCanciones(criterio, function (canciones) {
             if (canciones == null) {
                 showError("Error al listar", res);
