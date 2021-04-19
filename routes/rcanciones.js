@@ -82,12 +82,27 @@ module.exports = function(app, swig, gestorBD) {
                 showError("Error al recuperar la canción", res);
 
             } else {
-                let respuesta = swig.renderFile('views/bcancion.html',
-                    {
-                        cancion : canciones[0],
-                        puedeReproducir: canciones[0].autor == req.session.usuario || comproCancion
-                    });
-                res.send(respuesta);
+                let configuracion = {
+                    url: "https://www.freeforexapi.com/api/live?pairs=EURUSD",
+                    method: "get",
+                    headers: {
+                        "token": "ejemplo",
+                    }
+                }
+                let rest = app.get("rest");
+                rest(configuracion, function (error, response, body) {
+                    console.log("cod: " + response.statusCode + " Cuerpo :" + body);
+                    let objetoRespuesta = JSON.parse(body);
+                    let cambioUSD = objetoRespuesta.rates.EURUSD.rate;
+                    // nuevo campo "usd"
+                    canciones[0].usd = cambioUSD * canciones[0].precio;
+                    let respuesta = swig.renderFile('views/bcancion.html',
+                        {
+                            cancion: canciones[0],
+                            puedeReproducir: canciones[0].autor == req.session.usuario || comproCancion
+                        });
+                    res.send(respuesta);
+                })
             }
         });
     });
