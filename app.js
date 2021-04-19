@@ -18,7 +18,6 @@ let bodyParser = require('body-parser');
 let swig = require('swig');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 let fs = require('fs');
 let https = require('https');
 
@@ -44,13 +43,21 @@ app.use("/compras",routerUsuarioSession);
 
 app.use(express.static('public'));
 
-app.use(function (err,req,res)
+app.use(function (req,res,next, err)
 {
     console.log("Error producido: " + err); //mostramos el error en consola
     if(!res.headersSent){
         res.status(400);
         res.send("Recurso no disponible");
     }
+});
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, UPDATE, PUT");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token");
+    // Debemos especificar todas las headers que se aceptan. Content-Type , token
+    next();
 });
 //routerAudios
 let routerAudios = express.Router();
