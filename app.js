@@ -108,10 +108,12 @@ app.set('db', 'mongodb://admin:sdi@tiendamusica-shard-00-00.3iw7w.mongodb.net:27
     '/myFirstDatabase?ssl=true&replicaSet=atlas-mditt6-shard-0&authSource=admin&retryWrites=true&w=majority')
 app.set('clave','abcdefg');
 app.set('crypto',crypto);
+
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD); // (app, param1, param2, etc.)
 require("./routes/rcanciones.js")(app, swig, gestorBD); // (app, param1, param2, etc.)
 require("./routes/rautores.js")(app, swig); // (app, param1, param2, etc.)
+require("./routes/rapicanciones.js")(app, gestorBD); // (app, param1, param2, etc.)
 
 app.get('/', function (req, res) {
     res.redirect('/tienda');
